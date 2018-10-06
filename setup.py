@@ -12,7 +12,7 @@ URL = 'https://github.com/lossme/raspberrypi-tm1637'
 EMAIL = '1612730560@qq.com'
 AUTHOR = 'key'
 REQUIRES_PYTHON = '>=3.4'
-VERSION = (1, 0, 0)
+VERSION = "1.0.0"
 
 # What packages are required for this module to be executed?
 REQUIRED = [
