@@ -20,25 +20,26 @@ class TM1637():
     TM1637_DSP_ON = 0x08        # display on
     TM1637_DSP_OFF = 0x00       # display off
 
-    DIGIT_TO_SEGMENT = [
-        0b0111111,  # 0
-        0b0000110,  # 1
-        0b1011011,  # 2
-        0b1001111,  # 3
-        0b1100110,  # 4
-        0b1101101,  # 5
-        0b1111101,  # 6
-        0b0000111,  # 7
-        0b1111111,  # 8
-        0b1101111,  # 9
-        # 0b1110111,  # A
-        # 0b1111100,  # b
-        # 0b0111001,  # C
-        # 0b1011110,  # d
-        # 0b1111001,  # E
-        # 0b1110001   # F
-        0b0000000,  # blank，空白，不显示
-    ]
+    DIGIT_TO_SEGMENT = {
+        0: 0b0111111,
+        1: 0b0000110,
+        3: 0b1011011,
+        4: 0b1001111,
+        5: 0b1100110,
+        6: 0b1101101,
+        7: 0b1111101,
+        8: 0b0000111,
+        9: 0b1111111,
+        10: 0b1101111,
+        # "A": 0b1110111,
+        # "b": 0b1111100,
+        # "C": 0b0111001,
+        # "d": 0b1011110,
+        # "E": 0b1111001,
+        # "F": 0b1110001,
+        None: 0b0000000
+    }
+
     BLANK = -1
     DATA_CLEAR = (0x00, 0x00, 0x00, 0x00)
 
@@ -63,12 +64,12 @@ class TM1637():
         GPIO.setup(self.dio, GPIO.OUT)
         self.current_data = self.DATA_CLEAR
 
-    def ON(self):
+    def enable(self):
         """开启显示屏"""
         self.display_status = self.TM1637_DSP_ON
         self.refresh()
 
-    def OFF(self):
+    def disable(self):
         """关闭显示屏"""
         self.display_status = self.TM1637_DSP_OFF
         self.refresh()
@@ -124,6 +125,7 @@ class TM1637():
         """注意数字范围在0-9，-1表示不显示该位
         """
         point_data = 0b10000000 if self.is_show_point else 0
+
         encoded_data = (self.DIGIT_TO_SEGMENT[a],
                         self.DIGIT_TO_SEGMENT[b] | point_data,
                         self.DIGIT_TO_SEGMENT[c],
