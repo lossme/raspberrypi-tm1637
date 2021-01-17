@@ -20,27 +20,26 @@ class TM1637():
     TM1637_DSP_ON = 0x08        # display on
     TM1637_DSP_OFF = 0x00       # display off
 
-    DIGIT_TO_SEGMENT = {
-        0: 0b0111111,
-        1: 0b0000110,
-        3: 0b1011011,
-        4: 0b1001111,
-        5: 0b1100110,
-        6: 0b1101101,
-        7: 0b1111101,
-        8: 0b0000111,
-        9: 0b1111111,
-        10: 0b1101111,
-        # "A": 0b1110111,
-        # "b": 0b1111100,
-        # "C": 0b0111001,
-        # "d": 0b1011110,
-        # "E": 0b1111001,
-        # "F": 0b1110001,
-        None: 0b0000000
-    }
+    DIGIT_TO_SEGMENT = [
+        0b0111111,  # 0
+        0b0000110,  # 1
+        0b1011011,  # 2
+        0b1001111,  # 3
+        0b1100110,  # 4
+        0b1101101,  # 5
+        0b1111101,  # 6
+        0b0000111,  # 7
+        0b1111111,  # 8
+        0b1101111,  # 9
+        0b1110111,  # A
+        0b1111100,  # b
+        0b0111001,  # C
+        0b1011110,  # d
+        0b1111001,  # E
+        0b1110001  # F
+    ]
+    NONE_SEGMENT = 0b0000000
 
-    BLANK = -1
     DATA_CLEAR = (0x00, 0x00, 0x00, 0x00)
 
     def __init__(self, clk, dio, brightnes=2, is_show_point=False, pin_mode=GPIO.BOARD):
@@ -121,28 +120,30 @@ class TM1637():
         self.write_byte(self.COMMAND_CTRL | self.display_status | self.brightnes)
         self.stop()
 
-    def show(self, a, b, c, d):
+    def show(self, data):
         """注意数字范围在0-9，-1表示不显示该位
         """
+        a, b, c, d = data
         point_data = 0b10000000 if self.is_show_point else 0
-
-        encoded_data = (self.DIGIT_TO_SEGMENT[a],
-                        self.DIGIT_TO_SEGMENT[b] | point_data,
-                        self.DIGIT_TO_SEGMENT[c],
-                        self.DIGIT_TO_SEGMENT[d])
+        encoded_data = (
+            self.NONE_SEGMENT if a is None else self.DIGIT_TO_SEGMENT[a],
+            self.NONE_SEGMENT if b is None else self.DIGIT_TO_SEGMENT[b] | point_data,
+            self.NONE_SEGMENT if c is None else self.DIGIT_TO_SEGMENT[c],
+            self.NONE_SEGMENT if d is None else self.DIGIT_TO_SEGMENT[d],
+        )
         self.show_data(encoded_data)
 
     def refresh(self):
         self.show_data(self.current_data)
 
-    def write_byte(self, int8_data):
+    def write_byte(self, b):
         for i in range(0, 8):
             GPIO.output(self.clk, GPIO.LOW)
-            if int8_data & 0x01:
+            if b & 0x01:
                 GPIO.output(self.dio, GPIO.HIGH)
             else:
                 GPIO.output(self.dio, GPIO.LOW)
-            int8_data = int8_data >> 1
+            b >>= 1
             GPIO.output(self.clk, GPIO.HIGH)
 
         # wait for ACK

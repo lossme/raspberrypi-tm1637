@@ -11,16 +11,16 @@ from tm1637 import TM1637
 
 
 # 默认使用 BOARD 编码
-display = TM1637(clk=38, dio=40, brightnes=2, is_show_point=False, pin_mode=GPIO.BOARD)
+display = TM1637(clk=40, dio=38, brightnes=7, is_show_point=False, pin_mode=GPIO.BOARD)
 
 # 显示1,2,3,4
-display.show(1, 2, 3, 4)
+display.show([1, 2, 3, 4])
 
 # 清空显示屏
 display.clear()
 
 # 第三、第四个位置不显示东西
-display.show(1, 2, None, None)
+display.show([1, 2, None, None])
 
 # 显示中间的点
 display.show_point()
